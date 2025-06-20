@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <title>Pink Heart</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background: transparent !important; 
+        }
+        canvas {
+            display: none;
+            width: 100%;
+            height: 100%;
+        }
+        .swal2-container {
+            background-color: rgba(0,0,0,0.3) !important; 
+        }
+        body::after {
+  content: "\0043\0072\0065\0061\0074\0065\0064\0020\0042\0079\0020\004d\0061\0074\0072\0069\0078\004d\0061\006e";
+  position: fixed; 
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 12px;
+  opacity: 0.09;
+  color: white;
+  font-family: Arial, sans-serif;
+}
+    </style>
+</head>
+<body>
+    <audio id="bgMusic" loop>
+        <source src="https://matrixman-hub.netlify.app/surat%20cinta%20untuk%20starla.mp3" type="audio/mpeg">
+    </audio>
+
+    <canvas id="alx"></canvas>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const canvas = document.getElementById('alx');
+            const ctx = canvas.getContext('2d');
+            
+            Swal.fire({
+                title: 'Selamat Datang',
+                html: `
+                <p>Halloo Sayang, Ini Website Spesial Untuk Mu</p>
+                <button id="playBtn" style="background:#ff69b4; border:none; padding:10px 20px; color:white; border-radius:5px; cursor:pointer; margin-top:20px">
+                    KLIK DISINI
+                </button>
+                `,
+                showConfirmButton: false,
+                allowOutsideClick: false,
+                background: 'rgba(30,41,59,0.9)',
+                color: 'white'
+            });
+
+            document.getElementById('playBtn').addEventListener('click', function() {
+                const bgMusic = document.getElementById('bgMusic');
+                bgMusic.volume = 0.5;
+                
+                bgMusic.play()
+                    .then(() => {
+                        Swal.close();
+                        canvas.style.display = 'block';
+                        startAnimation();
+                    })
+                    .catch(e => {
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Musik tidak bisa dimainkan',
+                            text: 'Klik tombol PUTAR MUSIK lagi atau aktifkan audio di browser',
+                            background: 'rgba(30,41,59,0.9)'
+                        });
+                    });
+            });
+
+            let e = [];
+            let h = [];
+            let WIDTH = canvas.width = innerWidth;
+            let HEIGHT = canvas.height = innerHeight;
+            let v = 32 + 16 + 8;
+            let R = Math.random;
+            let C = Math.cos;
+            let Y = 6.3;
+            
+            function initHeartPoints() {
+                h = [];
+        
+                for (i = 0; i < Y; i += 0.2)
+                    h.push([WIDTH / 2 + 210 * Math.pow(Math.sin(i), 3),
+                        HEIGHT / 2 + 13 * -(15 * C(i) - 5 * C(2 * i) - 2 * C(3 * i) - C(4 * i))]);
+                
+                for (i = 0; i < Y; i += 0.4)
+                    h.push([WIDTH / 2 + 150 * Math.pow(Math.sin(i), 3),
+                        HEIGHT / 2 + 9 * -(15 * C(i) - 5 * C(2 * i) - 2 * C(3 * i) - C(4 * i))]);
+                
+                for (i = 0; i < Y; i += 0.8)
+                    h.push([WIDTH / 2 + 90 * Math.pow(Math.sin(i), 3),
+                        HEIGHT / 2 + 5 * -(15 * C(i) - 5 * C(2 * i) - 2 * C(3 * i) - C(4 * i))]);
+            }
+            
+            function initParticles() {
+                e = [];
+                for (i = 0; i < v;) {
+                    x = R() * WIDTH;
+                    y = R() * HEIGHT;
+              
+                    H = 330 + 30 * R(); 
+                    S = 70 + 30 * R(); 
+                    B = 70 + 30 * R(); 
+                    f = [];
+                    for (k = 0; k < v;) f[k++] = {
+                        x: x,
+                        y: y,
+                        X: 0,
+                        Y: 0,
+                        R: 1.5 - k / v + 1.5, 
+                        S: R() + 1.5, 
+                        q: ~~(R() * h.length),
+                        D: 2 * (i % 2) - 1,
+                        F: 0.2 * R() + 0.7,
+                        f: "hsla(" + ~~H + "," + ~~S + "%," + ~~B + "%,.3)" 
+                    };
+                    e[i++] = f;
+                }
+            }
+            
+            function path(d) {
+                ctx.fillStyle = d.f;
+                ctx.beginPath();
+                ctx.arc(d.x, d.y, d.R, 0, Y, 1);
+                ctx.closePath();
+                ctx.fill();
+            }
+            
+            function animate() {
+                ctx.fillStyle = "rgba(0,0,0,.1)";
+                ctx.fillRect(0, 0, WIDTH, HEIGHT);
+                for (i = e.length; i--;) {
+                    f = e[i];
+                    u = f[0];
+                    q = h[u.q];
+                    D = u.x - q[0];
+                    E = u.y - q[1];
+                    G = Math.sqrt(D * D + E * E);
+                    10 > G && (0.95 < R() ? u.q = ~~(R() * h.length) : (0.99 < R() && (u.D *= -1), u.q += u.D, u.q %= h.length, 0 > u.q && (u.q += h.length)));
+                    u.X += -D / G * u.S;
+                    u.Y += -E / G * u.S;
+                    u.x += u.X;
+                    u.y += u.Y;
+                    path(u);
+                    u.X *= u.F;
+                    u.Y *= u.F;
+                    for (k = 0; k < v - 1;) {
+                        T = f[k];
+                        N = f[++k];
+                        N.x -= 0.7 * (N.x - T.x);
+                        N.y -= 0.7 * (N.y - T.y);
+                        path(N);
+                    }
+                }
+                requestAnimationFrame(animate);
+            }
+            
+            function resize() {
+                WIDTH = canvas.width = innerWidth;
+                HEIGHT = canvas.height = innerHeight;
+                initHeartPoints();
+            }
+            
+            function startAnimation() {
+                initHeartPoints();
+                initParticles();
+                animate();
+            }
+            
+            window.addEventListener('resize', resize);
+        });
+    </script>
+</body>
+</html>
